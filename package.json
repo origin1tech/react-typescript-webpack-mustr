@@ -13,7 +13,7 @@
     "build": "npm run clean && npm run copy && npm run prod",
     "commit": "git add . && git commit -am 'auto commit' && git push",
     "bump": "node ./build bump",
-    "docs": "node ./node_modules/typedoc/bin/typedoc --out ./docs ./src --options ./typedoc.json",
+    "docs": "node ./build docs",
     "release": "npm run build && npm run docs && npm run bump && npm run commit && npm run push",
     "test": "mocha --opts ./src/mocha.opts"
   },
@@ -27,10 +27,6 @@
     "entry": "main.tsx",
     "assets": "assets",
     "publicPath": "/",
-    "template": {
-      "title": "App",
-      "appMountId": "app"
-    },
     "devtool": "source-map",
     "clean": [
       "./dist/**/*.{ts,map,js}"

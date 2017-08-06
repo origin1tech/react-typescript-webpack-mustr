@@ -16,16 +16,17 @@ const changeTimer = 500;
 if (!build)
   log.error('whoops looks like you forgot to configure package.json "build".').exit();
 
-let cmd, baseCmd;
-
 // Normalizes the command and appends
 // all other options passed via command line.
-function normalize(cmds) {
+function normalize(cmds, opts) {
+  opts = opts || argv.options;
   if (chek.isString(cmds))
-    cmds = [cmds];
+    cmds = cmds.split(' ');
+  if (chek.isString(opts))
+    opts = [opts];
   const output = cmds;
   // Ensure we don't append dupes.
-  argv.options.forEach((o) => {
+  opts.forEach((o) => {
     if (!chek.contains(output, o))
       output.push(o);
   });
@@ -43,91 +44,80 @@ switch (parsed.cmd) {
     config();
     break;
 
+  // RE-CONFIGURE // - re-runs config tool but does not run npm install.
+
   case 'reconfigure':
     config(true);
     break;
+
+  // CLEAN // - cleans the project
 
   case 'clean':
     stiks.clean(build.clean);
     break;
 
+  // COPY // - copies files to dist or specified output directory.
+
   case 'copy':
     stiks.copy(build.copy);
     break;
 
+  // DEV // - starts project in development mode.
+
   case 'dev':
-    baseCmd = './node_modules/webpack-dev-server/bin/webpack-dev-server';
+    cmd = './node_modules/webpack-dev-server/bin/webpack-dev-server';
     process.env.NODE_ENV = 'development';
     process.env.BROWSER = true;
     exec.node('./node_modules/webpack-dev-server/bin/webpack-dev-server -d --hot --colors --watch --progress --profile --config build/webpack');
     break;
 
+  // PROD // - starts project in production mode.
+
   case 'prod':
-    baseCmd = './node_modules/webpack/bin/webpack';
+    cmd = './node_modules/webpack/bin/webpack';
     process.env.NODE_ENV = 'production';
     process.env.BROWSER = true;
     exec.node('./node_modules/webpack/bin/webpack --progress --env=prod --profile --config build/webpack')
     break;
 
+  // CLEAN // - builds Typedoc documents.
+
   case 'docs':
-    // exec.npm('run docs');
     exec.node('./node_modules/typedoc/bin/typedoc --out ./docs ./src --options ./typedoc.json')
     break;
 
+  // COMMIT // - commits the project to git repo.
+
   case 'commit':
 
-    baseCmd = 'commit';
+    let opts;
 
-    // Check if -m was provided if not
-    // add auto commit message.
-    const tmpOpts = argv.options.join(' ');
-    if (!/-[a-zA-Z]{0,7}?m/g.test(tmpOpts))
-      baseCmd = baseCmd.concat(['-am', 'auto commit']);
+    // If -m not detected add auto commit message.
+    if (!/-[a-zA-Z]{0,7}?m/g.test(argv.options.join(' ')))
+      opts = ['-m', '"auto commit"'];
 
-    cmd = normalize(['commit']);
+    // Normalize the git commit args.
+    const cmd = normalize('commit', opts);
+
+    // Add files commit and push.
     exec.command('git', 'add .');
     exec.command('git', cmd)
     exec.command('git', 'push');
     break;
 
+  // RELEASE // - builds then releases the project.
+
   case 'release':
     exec.npm('run release');
     break;
+
+  // BUMP // - bumps the project version.
 
   case 'bump':
     stiks.bump();
     break;
 
-  case 'serve':
-
-    // Clean and copy before starting server
-    stiks.clean(build.clean);
-    stiks.copy(build.copy);
-
-    const config = build.devServer;
-    const files = config.files;
-    delete config.files; // handle watch manuall.
-    let changeTimeout;
-    const server = stiks.serve(config);
-    const changed = [];
-
-    server.watch(files).on('change', (file) => {
-      if (!chek.contains(changed, file))
-        changed.push(file);
-      if (changeTimeout)
-        clearTimeout(changeTimeout);
-      changeTimeout = setTimeout(() => {
-        const toBeCopied = [];
-        changed.forEach((src) => {
-          const dest = src.replace(/^src/, './dist');
-          toBeCopied.push([src, dest])
-        });
-        // Use blocking copy
-        stiks.copyAll(toBeCopied);
-        server.reload();
-      }, changeTimer);
-    });
-    break;
+  // DEFAUL // - command not found.
 
   default:
     log.write(colurs.bgRed.white(` Whoops command "${parsed.cmd}" was not found`))
