@@ -93,8 +93,9 @@ switch (parsed.cmd) {
     let opts;
 
     // If -m not detected add auto commit message.
+    // NOTE commit message should be wrapped in quotes.
     if (!/-[a-zA-Z]{0,7}?m/g.test(argv.options.join(' ')))
-      opts = ['-m', '"auto commit"'];
+      opts = ['-am', '"auto commit"'];
 
     // Normalize the git commit args.
     const cmd = normalize('commit', opts);
