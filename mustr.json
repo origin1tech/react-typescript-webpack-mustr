@@ -1,0 +1,8 @@
+{
+  "configDir": "./mustr",
+  "outputDir": "./src/app",
+  "templateExt": ".tpl",
+  "autoLoad": true,
+  "autoRegister": true,
+  "maxRollbacks": 15
+}

@@ -1,0 +1,117 @@
+
+/**
+ * Style files support cssnext syntax
+ * by way of postcss processing.
+ * @see http://cssnext.io/
+ *
+ */
+
+
+/* VARIABLES
+****************************/
+
+:root {
+
+  --color-primary: #E74C3C;
+  --color-secondary: #2C3E50;
+  --color-accent: #3498DB;
+  --color-background: #ECF0F1;
+
+  --font-family: 'Helvetica Nueue', Arial;
+  --font-base: 1rem;
+  --font-small: calc(var(--font-base) * .80);
+  --font-large: calc(var(--font-base) * 1.25);
+  --font-xlarge: calc(var(--font-base) * 1.50);
+
+  --padding-base: .5rem;
+  --padding-small: calc(var(--padding-base) * .50);
+  --padding-large: calc(var(--padding-base) * 1.25);
+  --padding-xlarge: calc(var(--padding-base) * 1.50);
+  --padding-jumbo: calc(var(--padding-base) * 2);
+
+  --list-unstyled: {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  --text-emboss {
+	  text-shadow: 1px -2px -2px color(var(--color-secondary) shade(50%));
+  }
+
+}
+
+/* COMMON
+****************************/
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100;
+  font-family: var(--font-family);
+}
+
+.content {
+  padding: var(--padding-large);
+}
+
+.container {
+  display: flex;
+}
+
+.container-item {
+  flex: 1 1 auto;
+}
+
+.unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ELEMENTS
+*****************************/
+
+header {
+  display: flex;
+  width: 100%;
+  background-color: var(--color-secondary);
+  align-items: center;
+}
+
+.logo {
+  color: color(var(--color-secondary) tint(45%));
+  font-size: var(--font-xlarge);
+  padding: var(--padding-large);
+  width: 30%;
+  min-width: 8rem;
+  @apply --text-emboss;
+}
+
+nav {
+ width: 70%;
+}
+
+nav > ul {
+  @apply --list-unstyled;
+}
+
+nav > ul li {
+  display: inline-block;
+  padding: 0 .5rem;
+  min-width: 3rem;
+  text-align: center;
+  & a {
+    color: #fff;
+    text-decoration: none;
+    & span {
+      height: .15rem;
+      display: block;
+    }
+  }
+  & a.active {
+    & span {
+      background-color: color(var(--color-primary) saturation(+ 60%) w(- 10%));
+    }
+  }
+}
